@@ -3,19 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDF RAG Query</title>
+    <title>AI-Powered PDF Analysis</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
-            --primary-color: #000000;
-            --secondary-color: #ffffff;
-            --accent-color: #10a37f;
-            --text-color: #343541;
+            --primary-color: #10a37f;
+            --text-color: #ffffff;
+            --background-color: #000000;
+            --card-background: #1a1a1a;
+            --border-color: #333333;
+            --hover-color: #2d2d2d;
+            --shadow-color: rgba(0, 0, 0, 0.5);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        [data-theme="light"] {
+            --primary-color: #10a37f;
+            --text-color: #000000;
             --background-color: #ffffff;
+            --card-background: #ffffff;
             --border-color: #e5e5e5;
             --hover-color: #f7f7f8;
-            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --shadow-color: rgba(0, 0, 0, 0.1);
         }
 
         * {
@@ -29,50 +39,74 @@
             background-color: var(--background-color);
             color: var(--text-color);
             line-height: 1.6;
-            overflow-x: hidden;
+            transition: var(--transition);
         }
 
         .container {
-            max-width: 1000px;
+            max-width: 1200px;
             margin: 0 auto;
             padding: 2rem;
         }
 
         .header {
-            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 3rem;
+        }
+
+        .header-content {
+            flex: 1;
         }
 
         .header h1 {
             font-size: 2.5rem;
             font-weight: 700;
-            color: var(--primary-color);
+            color: var(--text-color);
             margin-bottom: 1rem;
         }
 
         .header p {
             font-size: 1.1rem;
-            color: #666;
+            color: var(--text-color);
+            opacity: 0.8;
             max-width: 600px;
-            margin: 0 auto;
+        }
+
+        .theme-toggle {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            cursor: pointer;
+            font-size: 1.5rem;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: var(--transition);
+        }
+
+        .theme-toggle:hover {
+            background: var(--hover-color);
         }
 
         .main-content {
             display: grid;
-            grid-template-columns: 1fr;
+            grid-template-columns: 1fr 1fr;
             gap: 2rem;
         }
 
         .section {
-            background: var(--secondary-color);
+            background: var(--card-background);
             border: 1px solid var(--border-color);
-            border-radius: 8px;
+            border-radius: 12px;
             padding: 2rem;
             transition: var(--transition);
+            box-shadow: 0 4px 6px var(--shadow-color);
         }
 
         .section:hover {
-            border-color: var(--accent-color);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px var(--shadow-color);
+            border-color: var(--primary-color);
         }
 
         .section-title {
@@ -82,21 +116,31 @@
             display: flex;
             align-items: center;
             gap: 0.8rem;
-            color: var(--primary-color);
+            color: var(--text-color);
         }
 
         .section-title i {
-            color: var(--accent-color);
+            color: var(--primary-color);
         }
 
         .upload-form {
             display: flex;
             flex-direction: column;
-            gap: 1rem;
+            gap: 1.5rem;
         }
 
         .file-input-wrapper {
             position: relative;
+            border: 2px dashed var(--border-color);
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            transition: var(--transition);
+        }
+
+        .file-input-wrapper:hover {
+            border-color: var(--primary-color);
+            background: var(--hover-color);
         }
 
         .file-input {
@@ -107,74 +151,81 @@
             display: inline-flex;
             align-items: center;
             gap: 0.8rem;
-            padding: 0.8rem 1.5rem;
-            background: var(--hover-color);
-            color: var(--text-color);
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
+            padding: 1rem 2rem;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 8px;
             cursor: pointer;
             transition: var(--transition);
             font-weight: 500;
         }
 
         .file-input-label:hover {
-            background: var(--border-color);
+            opacity: 0.9;
+            transform: translateY(-1px);
         }
 
         .submit-btn {
-            padding: 0.8rem 1.5rem;
-            background: var(--accent-color);
-            color: var(--secondary-color);
+            padding: 1rem 2rem;
+            background: var(--primary-color);
+            color: white;
             border: none;
-            border-radius: 6px;
+            border-radius: 8px;
             cursor: pointer;
             font-weight: 500;
             transition: var(--transition);
             display: inline-flex;
             align-items: center;
+            justify-content: center;
             gap: 0.8rem;
             font-size: 1rem;
+            width: 100%;
         }
 
         .submit-btn:hover {
             opacity: 0.9;
+            transform: translateY(-1px);
         }
 
         .submit-btn:disabled {
             opacity: 0.7;
             cursor: not-allowed;
+            transform: none;
         }
 
         .query-input {
             width: 100%;
-            padding: 0.8rem 1rem;
+            padding: 1rem;
             border: 1px solid var(--border-color);
-            border-radius: 6px;
+            border-radius: 8px;
             font-size: 1rem;
             transition: var(--transition);
-            margin-bottom: 1rem;
-            background: var(--secondary-color);
+            background: var(--card-background);
+            color: var(--text-color);
+            resize: vertical;
+            min-height: 100px;
         }
 
         .query-input:focus {
             outline: none;
-            border-color: var(--accent-color);
-            box-shadow: 0 0 0 2px rgba(16, 163, 127, 0.1);
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(16, 163, 127, 0.2);
         }
 
         #result {
             margin-top: 1.5rem;
             padding: 1.5rem;
-            border-radius: 6px;
+            border-radius: 8px;
             background: var(--hover-color);
             border: 1px solid var(--border-color);
+            white-space: pre-wrap;
         }
 
         .loading {
             display: none;
             text-align: center;
             margin: 1rem 0;
-            color: var(--accent-color);
+            color: var(--primary-color);
         }
 
         .loading i {
@@ -186,8 +237,8 @@
             top: 1.5rem;
             right: 1.5rem;
             padding: 1rem 1.5rem;
-            border-radius: 6px;
-            color: var(--secondary-color);
+            border-radius: 8px;
+            color: white;
             font-weight: 500;
             display: flex;
             align-items: center;
@@ -195,11 +246,11 @@
             transform: translateX(120%);
             transition: var(--transition);
             z-index: 1000;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 6px var(--shadow-color);
         }
 
         .notification.success {
-            background: var(--accent-color);
+            background: var(--primary-color);
         }
 
         .notification.error {
@@ -210,6 +261,13 @@
             transform: translateX(0);
         }
 
+        .file-info {
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: var(--text-color);
+            opacity: 0.8;
+        }
+
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
@@ -218,6 +276,16 @@
         @media (max-width: 768px) {
             .container {
                 padding: 1rem;
+            }
+
+            .header {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+            }
+
+            .main-content {
+                grid-template-columns: 1fr;
             }
 
             .header h1 {
@@ -233,8 +301,13 @@
 <body>
     <div class="container">
         <header class="header">
-            <h1>PDF RAG Query</h1>
-            <p>Upload your PDF and ask questions about its content using advanced AI technology.</p>
+            <div class="header-content">
+                <h1>AI-Powered PDF Analysis</h1>
+                <p>Upload your PDF and ask questions about its content using advanced AI technology.</p>
+            </div>
+            <button class="theme-toggle" id="themeToggle">
+                <i class="fas fa-sun"></i>
+            </button>
         </header>
 
         <main class="main-content">
@@ -250,12 +323,16 @@
                             <i class="fas fa-file-pdf"></i>
                             Choose PDF File
                         </label>
+                        <div class="file-info" id="fileInfo"></div>
                     </div>
-                    <button type="submit" class="submit-btn">
-                        <i class="fas fa-cloud-upload-alt"></i>
+                    <button type="submit" class="submit-btn" id="uploadBtn">
+                        <i class="fas fa-upload"></i>
                         Upload and Process
                     </button>
                 </form>
+                <div class="loading" id="uploadLoading">
+                    <i class="fas fa-spinner"></i> Processing PDF...
+                </div>
             </section>
 
             <section class="section">
@@ -263,114 +340,136 @@
                     <i class="fas fa-question-circle"></i>
                     Ask Questions
                 </h2>
-                <input type="text" id="question" class="query-input" placeholder="Enter your question about the PDF...">
-                <button onclick="askQuestion()" class="submit-btn">
+                <textarea class="query-input" id="question" placeholder="Type your question here..." rows="4"></textarea>
+                <button class="submit-btn" id="queryBtn" disabled>
                     <i class="fas fa-search"></i>
                     Ask Question
                 </button>
-                <div class="loading" id="loading">
-                    <i class="fas fa-spinner"></i>
-                    Processing...
+                <div class="loading" id="queryLoading">
+                    <i class="fas fa-spinner"></i> Processing question...
                 </div>
                 <div id="result"></div>
             </section>
         </main>
     </div>
 
-    <div id="notification" class="notification">
-        <i class="fas fa-check-circle"></i>
-        <span>File uploaded successfully!</span>
-    </div>
+    <div class="notification" id="notification"></div>
 
     <script>
-        // Show notification function
-        function showNotification(message, type = 'success') {
-            const notification = document.getElementById('notification');
-            const icon = notification.querySelector('i');
-            const text = notification.querySelector('span');
-            
-            text.textContent = message;
-            notification.className = `notification ${type}`;
-            icon.className = type === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle';
-            
-            notification.classList.add('show');
-            
+        // Theme toggle functionality
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = themeToggle.querySelector('i');
+        
+        // Set initial theme to dark
+        document.body.setAttribute('data-theme', 'dark');
+        themeIcon.classList.replace('fa-moon', 'fa-sun');
+
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = document.body.getAttribute('data-theme');
+            if (currentTheme === 'dark') {
+                document.body.setAttribute('data-theme', 'light');
+                themeIcon.classList.replace('fa-sun', 'fa-moon');
+            } else {
+                document.body.setAttribute('data-theme', 'dark');
+                themeIcon.classList.replace('fa-moon', 'fa-sun');
+            }
+        });
+
+        // File upload handling
+        const uploadForm = document.getElementById('uploadForm');
+        const fileInput = document.getElementById('pdf');
+        const fileInfo = document.getElementById('fileInfo');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const uploadLoading = document.getElementById('uploadLoading');
+        const queryBtn = document.getElementById('queryBtn');
+        const notification = document.getElementById('notification');
+
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                fileInfo.textContent = `Selected file: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`;
+                uploadBtn.disabled = false;
+            } else {
+                fileInfo.textContent = '';
+                uploadBtn.disabled = true;
+            }
+        });
+
+        function showNotification(message, type) {
+            notification.textContent = message;
+            notification.className = `notification ${type} show`;
             setTimeout(() => {
                 notification.classList.remove('show');
             }, 3000);
         }
 
-        // Handle form submission
-        document.getElementById('uploadForm').addEventListener('submit', function(e) {
+        uploadForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+            const formData = new FormData(uploadForm);
             
-            const formData = new FormData(this);
-            const submitBtn = this.querySelector('button[type="submit"]');
-            const originalBtnText = submitBtn.innerHTML;
-            
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
-            
-            fetch('/', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.error) {
-                    showNotification(data.error, 'error');
+            uploadLoading.style.display = 'block';
+            uploadBtn.disabled = true;
+
+            try {
+                const response = await fetch('/', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showNotification('PDF processed successfully!', 'success');
+                    queryBtn.disabled = false;
                 } else {
-                    showNotification('File uploaded and processed successfully!');
-                    this.reset();
-                    document.querySelector('.file-input-label').innerHTML = '<i class="fas fa-file-pdf"></i> Choose PDF File';
+                    showNotification(data.error || 'Error processing PDF', 'error');
                 }
-            })
-            .catch(error => {
-                showNotification('Error uploading file: ' + error.message, 'error');
-            })
-            .finally(() => {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = originalBtnText;
-            });
+            } catch (error) {
+                showNotification('Error uploading file', 'error');
+            } finally {
+                uploadLoading.style.display = 'none';
+                uploadBtn.disabled = false;
+            }
         });
 
-        function askQuestion() {
-            const question = document.getElementById('question').value;
+        // Query handling
+        const questionInput = document.getElementById('question');
+        const queryLoading = document.getElementById('queryLoading');
+        const resultDiv = document.getElementById('result');
+
+        questionInput.addEventListener('input', () => {
+            queryBtn.disabled = !questionInput.value.trim();
+        });
+
+        queryBtn.addEventListener('click', async () => {
+            const question = questionInput.value.trim();
             if (!question) return;
 
-            const loading = document.getElementById('loading');
-            const result = document.getElementById('result');
-            
-            loading.style.display = 'block';
-            result.innerHTML = '';
+            queryLoading.style.display = 'block';
+            queryBtn.disabled = true;
+            resultDiv.textContent = '';
 
-            fetch('/query', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ question: question })
-            })
-            .then(response => response.json())
-            .then(data => {
-                loading.style.display = 'none';
-                if (data.error) {
-                    result.innerHTML = `<p style="color: #dc2626;">Error: ${data.error}</p>`;
+            try {
+                const response = await fetch('/query', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ question })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.textContent = data.answer;
                 } else {
-                    result.innerHTML = `<p>${data.answer}</p>`;
+                    showNotification(data.error || 'Error processing question', 'error');
                 }
-            })
-            .catch(error => {
-                loading.style.display = 'none';
-                result.innerHTML = `<p style="color: #dc2626;">Error: ${error.message}</p>`;
-            });
-        }
-
-        // Handle file input change
-        document.getElementById('pdf').addEventListener('change', function(e) {
-            const fileName = e.target.files[0]?.name;
-            if (fileName) {
-                this.nextElementSibling.innerHTML = `<i class="fas fa-file-pdf"></i> ${fileName}`;
+            } catch (error) {
+                showNotification('Error sending question', 'error');
+            } finally {
+                queryLoading.style.display = 'none';
+                queryBtn.disabled = false;
             }
         });
     </script>
