@@ -8,4 +8,5 @@ tiktoken==0.5.2
 pydantic==2.5.2
 PyPDF2==3.0.0
 Flask==2.0.0
+Werkzeug==2.0.3
 gunicorn==21.2.0 
