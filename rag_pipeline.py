@@ -98,6 +98,32 @@ class GraphRAGPipeline:
             password=self.neo4j_password,
             index_name="document_embeddings"
         )
+
+        # Create relationships between chunks
+        driver = GraphDatabase.driver(
+            self.neo4j_uri,
+            auth=(self.neo4j_username, self.neo4j_password)
+        )
+        
+        with driver.session() as session:
+            # Create sequential relationships between chunks
+            session.run("""
+                MATCH (c1:Chunk), (c2:Chunk)
+                WHERE c1.chunk_id + 1 = c2.chunk_id
+                MERGE (c1)-[r:NEXT_CHUNK]->(c2)
+            """)
+            
+            # Create relationships between chunks that share common words
+            session.run("""
+                MATCH (c1:Chunk), (c2:Chunk)
+                WHERE c1 <> c2
+                WITH c1, c2, 
+                     [word IN split(toLower(c1.text), ' ') WHERE word IN split(toLower(c2.text), ' ')] AS common_words
+                WHERE size(common_words) > 5
+                MERGE (c1)-[r:SHARES_WORDS {common_words: common_words}]->(c2)
+            """)
+        
+        driver.close()
         return self.vector_store
 
     def setup_qa_chain(self):
